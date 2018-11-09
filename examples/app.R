@@ -4,20 +4,7 @@ library(shinyjs)
 
 options(
   shiny.fullstacktrace = TRUE,
-  shiny.sanitize.errors = FALSE)
-
-.callback_aggregator <<- ""
-
-callback <- function(output) {
-  .callback_aggregator <<- paste0(.callback_aggregator, output)
-
-  if (any(grepl("[\r\n]", output))) {
-    shinyjs::runjs(sprintf(
-      "console.log('%s');",
-      gsub("[\r\n]", "", .callback_aggregator)))
-    .callback_aggregator <<- ""
-  }
-}
+  shiny.sanitize.errors = TRUE)
 
 ui <- function() {
   fluidPage(
@@ -30,7 +17,20 @@ ui <- function() {
 }
 
 srv <- function(input, output, session) {
-  con <- callbackConnection(callback)
+  .callback_aggregator <<- ""
+  
+  callback <- function(output) {
+    .callback_aggregator <<- paste0(.callback_aggregator, output)
+  
+    if (any(grepl("[\r\n]", output))) {
+      shinyjs::runjs(sprintf(
+        "console.log('%s');",
+        gsub("[\r\n]", "", .callback_aggregator)))
+      .callback_aggregator <<- ""
+    }
+  }
+  
+  con <<- callbackConnection(callback)
   sink(con, type="message")
   sink(con, type="output", split = TRUE) # split = TRUE doesn't relay original value
 
