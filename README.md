@@ -3,6 +3,29 @@
 A new connection target for R allowing arbitrary R code execution on stdout and
 stderr messages
 
+# Example [app.R](/examples/app.R)
+
+Changing the input of the `selectInput()` prints, emits a message or an error.
+
+```r
+# relevant snippet
+output$out <- renderText({
+  if (input$selection %in% "error something") {
+    stop(input$selection) # cause an error
+  } else if (input$selection %in% "message something") {
+    message(input$selection)
+  } else {
+    print(input$selection)
+  }
+
+  input$selection
+})
+```
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/18220321/48291943-1f06ca00-e42d-11e8-94f6-9fe8fb962c3d.gif">
+</p>
+
 # Motivation
 
 This was a proof of concept put together to alleviate my coworkers' difficulties
